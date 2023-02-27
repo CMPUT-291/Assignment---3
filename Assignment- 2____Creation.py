@@ -175,6 +175,26 @@ def A3Large_creation():
     # Closes the connection 
     conn.close()
 
+# created for test purposes
+# def drop_values_small():
+#     # Connecting to database and creating cursor
+#     conn = sqlite3.connect('A3Small.db')
+#     cur = conn.cursor()
+
+#     cur.execute("DROP TABLE Customers")
+#     cur.execute("DROP TABLE Sellers")
+#     cur.execute("DROP TABLE Orders")
+#     cur.execute("DROP TABLE Order_items")
+
+#     # Commits the Command
+#     conn.commit()
+
+#     # Closes the connection 
+#     conn.close()
+
+# for test purposes
+# drop_values_small()
+
 # runs the function and populates the database
 A3Small_creation()
 
