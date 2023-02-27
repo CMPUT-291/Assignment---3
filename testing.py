@@ -8,6 +8,15 @@ cur = conn.cursor()
 cur.execute("SELECT * FROM Customers")
 print(len(cur.fetchall()))
 
+cur.execute("SELECT * FROM Sellers")
+print(len(cur.fetchall()))
+
+cur.execute("SELECT * FROM Orders")
+print(len(cur.fetchall()))
+
+cur.execute("SELECT * FROM Order_items")
+print(len(cur.fetchall()))
+
 # running test to check if the randomization worked
 cur.execute("SELECT * FROM Customers")
 print(cur.fetchone())
