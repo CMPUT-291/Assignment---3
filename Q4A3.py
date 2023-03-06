@@ -3,7 +3,6 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # for creating and running test on uninformed and returns list of run times to calc avg from
 def create_uninf_db(cur, conn):
     # creates a replica of the tables which doesn't have primary and foreign keys assigned to them
@@ -23,26 +22,21 @@ def create_uninf_db(cur, conn):
                         INSERT INTO Order_items_new SELECT * FROM Order_items; ''')
     conn.commit()
     exec_times = []
-    for i in range(1):
+    for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(*)
-                        FROM (SELECT DISTINCT s.seller_postal_code
-                            FROM (SELECT i.seller_id
-                                    FROM (SELECT order_id
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+                        FROM (SELECT i.seller_id
+                                FROM (SELECT order_id
                                         FROM Orders_new
-                                        WHERE customer_id = (SELECT cust
-                                                            FROM (SELECT c.customer_id as cust
-                                                                    FROM Orders_new o,
-                                                                        Customers_new c
-                                                                    WHERE o.customer_id = c.customer_id
-                                                                    GROUP by c.customer_id
-                                                                    HAVING COUNT(order_id) > 1)
-                                                            ORDER BY random()
-                                                            LIMIT 1)) nest_2,
-                                        Order_items_new i
-                                    WHERE nest_2.order_id = i.order_id) nest_3,
-                                Sellers_new s
-                            WHERE nest_3.seller_id = s.seller_id);""")
+                                        WHERE customer_id = (SELECT o.customer_id
+                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
+                                                                        FROM Order_items_new
+                                                                        GROUP BY order_id
+                                                                        HAVING size > 1) nest, Orders_new o
+                                                                WHERE o.order_id = nest.oid
+                                                                ORDER BY random() LIMIT 1))nest_2, Order_items_new i
+                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers_new s
+                        WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
@@ -56,24 +50,19 @@ def create_self_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(*)
-                        FROM (SELECT DISTINCT s.seller_postal_code
-                            FROM (SELECT i.seller_id
-                                    FROM (SELECT order_id
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+                        FROM (SELECT i.seller_id
+                                FROM (SELECT order_id
                                         FROM Orders
-                                        WHERE customer_id = (SELECT cust
-                                                            FROM (SELECT c.customer_id as cust
-                                                                    FROM Orders o,
-                                                                        Customers c
-                                                                    WHERE o.customer_id = c.customer_id
-                                                                    GROUP by c.customer_id
-                                                                    HAVING COUNT(order_id) > 1)
-                                                            ORDER BY random()
-                                                            LIMIT 1)) nest_2,
-                                        Order_items i
-                                    WHERE nest_2.order_id = i.order_id) nest_3,
-                                Sellers s
-                            WHERE nest_3.seller_id = s.seller_id);""")
+                                        WHERE customer_id = (SELECT o.customer_id
+                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
+                                                                        FROM Order_items
+                                                                        GROUP BY order_id
+                                                                        HAVING size > 1) nest, Orders o
+                                                                WHERE o.order_id = nest.oid
+                                                                ORDER BY random() LIMIT 1))nest_2, Order_items i
+                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers s
+                        WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
@@ -96,24 +85,19 @@ def create_user_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(*)
-                        FROM (SELECT DISTINCT s.seller_postal_code
-                            FROM (SELECT i.seller_id
-                                    FROM (SELECT order_id
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+                        FROM (SELECT i.seller_id
+                                FROM (SELECT order_id
                                         FROM Orders
-                                        WHERE customer_id = (SELECT cust
-                                                            FROM (SELECT c.customer_id as cust
-                                                                    FROM Orders o,
-                                                                        Customers c
-                                                                    WHERE o.customer_id = c.customer_id
-                                                                    GROUP by c.customer_id
-                                                                    HAVING COUNT(order_id) > 1)
-                                                            ORDER BY random()
-                                                            LIMIT 1)) nest_2,
-                                        Order_items i
-                                    WHERE nest_2.order_id = i.order_id) nest_3,
-                                Sellers s
-                            WHERE nest_3.seller_id = s.seller_id);""")
+                                        WHERE customer_id = (SELECT o.customer_id
+                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
+                                                                        FROM Order_items
+                                                                        GROUP BY order_id
+                                                                        HAVING size > 1) nest, Orders o
+                                                                WHERE o.order_id = nest.oid
+                                                                ORDER BY random() LIMIT 1))nest_2, Order_items i
+                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers s
+                        WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
@@ -181,7 +165,7 @@ plt.figure(figsize=(10,7))
 plt.bar(x, uninformed, color='royalblue', width=barwidth, label='Uninformed')
 plt.bar(x, self_optimized, bottom= uninformed , color='red', width=barwidth, label='Self Optimized')
 plt.bar(x, user_optimized, bottom=uninformed+self_optimized, color='yellow', width=barwidth, label='User Optimized')
-plt.title("Query 3 runtime in ms")
+plt.title("Query 4 runtime in ms")
 plt.legend()
 
 plt.show()

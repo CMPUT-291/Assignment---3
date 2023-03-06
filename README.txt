@@ -12,12 +12,10 @@ Resources used:
         3. sqlite3
 
 Collaboration status: 
-    - ""We declare that we did not collaborate with anyone outside our own
+    - "We declare that we did not collaborate with anyone outside our own
 group in this assignment"
 
-
-
-REPORT: 
+USER OPTIMIZED INDEX CHOICE REPORT: 
 Query - 1:
     - 
 
