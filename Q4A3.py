@@ -25,23 +25,12 @@ def create_uninf_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
-                        FROM (SELECT i.seller_id
-                                FROM (SELECT order_id
-                                    FROM Orders_new
-                                    WHERE customer_id = (SELECT cust
-                                                        FROM (SELECT c.customer_id as cust
-                                                                FROM Orders_new o,
-                                                                    Customers_new c
-                                                                WHERE o.customer_id = c.customer_id
-                                                                GROUP by c.customer_id
-                                                                HAVING COUNT(order_id) > 1)
-                                                        ORDER BY random()
-                                                        LIMIT 1)) nest_2,
-                                    Order_items_new i
-                                WHERE nest_2.order_id = i.order_id) nest_3,
-                            Sellers_new s
-                        WHERE nest_3.seller_id = s.seller_id;""")
+        cur.execute("""SELECT count(DISTINCT seller_postal_code) as NO_unique_postal FROM sellers_new
+                        WHERE seller_id IN (SELECT seller_id FROM order_items_new
+                                                WHERE order_id IN
+                                                (SELECT order_id FROM orders_new
+                                                    WHERE customer_id = (SELECT customer_id FROM orders_new GROUP BY customer_id 
+                                                    HAVING COUNT(order_id) > 1 ORDER BY random() LIMIT 1)));""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
@@ -55,23 +44,12 @@ def create_self_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
-                        FROM (SELECT i.seller_id
-                                FROM (SELECT order_id
-                                    FROM Orders
-                                    WHERE customer_id = (SELECT cust
-                                                        FROM (SELECT c.customer_id as cust
-                                                                FROM Orders o,
-                                                                    Customers c
-                                                                WHERE o.customer_id = c.customer_id
-                                                                GROUP by c.customer_id
-                                                                HAVING COUNT(order_id) > 1)
-                                                        ORDER BY random()
-                                                        LIMIT 1)) nest_2,
-                                    Order_items i
-                                WHERE nest_2.order_id = i.order_id) nest_3,
-                            Sellers s
-                        WHERE nest_3.seller_id = s.seller_id;""")
+        cur.execute("""SELECT count(DISTINCT seller_postal_code) as NO_unique_postal FROM sellers
+                        WHERE seller_id IN (SELECT seller_id FROM order_items
+                                                WHERE order_id IN
+                                                (SELECT order_id FROM orders
+                                                    WHERE customer_id = (SELECT customer_id FROM orders GROUP BY customer_id 
+                                                    HAVING COUNT(order_id) > 1 ORDER BY random() LIMIT 1)));""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
@@ -85,35 +63,26 @@ def create_user_db(cur, conn):
                             DROP INDEX IF EXISTS idx_seller_id;
                             DROP INDEX IF EXISTS idx_order_id_items;
                             DROP INDEX IF EXISTS idx_seller_postal;
-                            DROP INDEX IF EXISTS idx_orders_customer_id;""")
+                            DROP INDEX IF EXISTS idx_orders_customer_id;
+                            DROP INDEX IF EXISTS idx_ord_items_seller_id;""")
     cur.executescript("""CREATE INDEX idx_order_id ON Orders(order_id);
                             CREATE INDEX idx_customer_id ON Customers(customer_id);
                             CREATE INDEX idx_seller_id ON Sellers(seller_id);
                             CREATE INDEX idx_order_id_items ON Order_items(order_id);
                             CREATE INDEX idx_seller_postal ON Sellers(seller_postal_code);
-                            CREATE INDEX idx_orders_customer_id ON Orders(customer_id);""")
+                            CREATE INDEX idx_orders_customer_id ON Orders(customer_id);
+                            CREATE INDEX idx_ord_items_seller_id ON Order_items(seller_id);""")
     conn.commit()
 
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
-                        FROM (SELECT i.seller_id
-                                FROM (SELECT order_id
-                                    FROM Orders
-                                    WHERE customer_id = (SELECT cust
-                                                        FROM (SELECT c.customer_id as cust
-                                                                FROM Orders o,
-                                                                    Customers c
-                                                                WHERE o.customer_id = c.customer_id
-                                                                GROUP by c.customer_id
-                                                                HAVING COUNT(order_id) > 1)
-                                                        ORDER BY random()
-                                                        LIMIT 1)) nest_2,
-                                    Order_items i
-                                WHERE nest_2.order_id = i.order_id) nest_3,
-                            Sellers s
-                        WHERE nest_3.seller_id = s.seller_id;""")
+        cur.execute("""SELECT count(DISTINCT seller_postal_code) as NO_unique_postal FROM sellers
+                        WHERE seller_id IN (SELECT seller_id FROM order_items
+                                                WHERE order_id IN
+                                                (SELECT order_id FROM orders
+                                                    WHERE customer_id = (SELECT customer_id FROM orders GROUP BY customer_id 
+                                                    HAVING COUNT(order_id) > 1 ORDER BY random() LIMIT 1)));""")
         end = time.time()
         exec_times.append((end - start) * 1000)
     return exec_times
