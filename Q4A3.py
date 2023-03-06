@@ -1,5 +1,8 @@
 import sqlite3 
 import time
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # for creating and running test on uninformed and returns list of run times to calc avg from
 def create_uninf_db(cur, conn):
@@ -20,7 +23,7 @@ def create_uninf_db(cur, conn):
                         INSERT INTO Order_items_new SELECT * FROM Order_items; ''')
     conn.commit()
     exec_times = []
-    for i in range(50):
+    for i in range(1):
         start = time.time()
         cur.execute("""SELECT COUNT(*)
                         FROM (SELECT DISTINCT s.seller_postal_code
@@ -167,3 +170,18 @@ print(average_self_run_times_large)
 run_times = create_user_db(cur,conn)
 average_user_run_times_large = average(run_times)
 print(average_user_run_times_large)
+
+uninformed = np.array([average_undef_run_times_small, average_undef_run_times_medium, average_undef_run_times_large])
+self_optimized = ([average_self_run_times_small,average_self_run_times_medium,average_self_run_times_large])
+user_optimized = ([average_user_run_times_small, average_user_run_times_medium, average_user_run_times_large])
+
+x = ['SmallDB', 'MediumDB', 'LargeDB']
+barwidth = 0.4
+plt.figure(figsize=(10,7))
+plt.bar(x, uninformed, color='royalblue', width=barwidth, label='Uninformed')
+plt.bar(x, self_optimized, bottom= uninformed , color='red', width=barwidth, label='Self Optimized')
+plt.bar(x, user_optimized, bottom=uninformed+self_optimized, color='yellow', width=barwidth, label='User Optimized')
+plt.title("Query 3 runtime in ms")
+plt.legend()
+
+plt.show()
