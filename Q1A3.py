@@ -59,11 +59,11 @@ def create_user_db(cur, conn):
     cur.execute("PRAGMA foreign_keys = ON")
     cur.execute("PRAGMA automatic_index = FALSE")
     cur.executescript(""" DROP INDEX IF EXISTS idx_order_id;
-                            DROP INDEX IF EXISTS idx_customer_id;
-                            DROP INDEX IF EXISTS idx_cust_postal_code;""")
-    cur.executescript("""CREATE INDEX idx_order_id ON Orders(order_id);
-                            CREATE INDEX idx_customer_id ON Customers(customer_id);
-                            CREATE INDEX idx_cust_postal_code ON Customers(customer_postal_code);""")
+                        DROP INDEX IF EXISTS idx_customer_id;
+                            DROP INDEX IF EXISTS idx_customer_id_postal_code;""")
+    cur.executescript("""CREATE INDEX idx_customer_id ON Orders(customer_id);
+                        CREATE INDEX idx_customer_id_postal_code ON Customers(customer_postal_code,customer_id);
+                            CREATE INDEX idx_order_id ON Order_items(order_id);""")
     conn.commit()
 
     exec_times = []
@@ -90,15 +90,15 @@ cur = conn.cursor()
 
 run_times = create_uninf_db(cur, conn)
 average_undef_run_times_small = average(run_times)
-print(average_undef_run_times_small)
+# print(average_undef_run_times_small)
 
 run_times = create_self_db(cur, conn)
 average_self_run_times_small = average(run_times)
-print(average_self_run_times_small)
+# print(average_self_run_times_small)
 
 run_times = create_user_db(cur,conn)
 average_user_run_times_small = average(run_times)
-print(average_user_run_times_small)
+# print(average_user_run_times_small)
 
 # Connecting to database, creating cursor, running the test and procuring the average run time for medium db first query 
 conn = sqlite3.connect('A3Medium.db')
@@ -106,15 +106,15 @@ cur = conn.cursor()
 
 run_times = create_uninf_db(cur, conn)
 average_undef_run_times_medium = average(run_times)
-print(average_undef_run_times_medium)
+# print(average_undef_run_times_medium)
 
 run_times = create_self_db(cur, conn)
 average_self_run_times_medium = average(run_times)
-print(average_self_run_times_medium)
+# print(average_self_run_times_medium)
 
 run_times = create_user_db(cur,conn)
 average_user_run_times_medium = average(run_times)
-print(average_user_run_times_medium)
+# print(average_user_run_times_medium)
 
 # Connecting to database, creating cursor, running the test and procuring the average run time for large db first query 
 conn = sqlite3.connect('A3Large.db')
@@ -122,15 +122,15 @@ cur = conn.cursor()
 
 run_times = create_uninf_db(cur, conn)
 average_undef_run_times_large = average(run_times)
-print(average_undef_run_times_large)
+# print(average_undef_run_times_large)
 
 run_times = create_self_db(cur, conn)
 average_self_run_times_large = average(run_times)
-print(average_self_run_times_large)
+# print(average_self_run_times_large)
 
 run_times = create_user_db(cur,conn)
 average_user_run_times_large = average(run_times)
-print(average_user_run_times_large)
+# print(average_user_run_times_large)
 
 # Taking in all the necessary data caculated from above and making a stacked box plot of the run times
 uninformed = np.array([average_undef_run_times_small, average_undef_run_times_medium, average_undef_run_times_large])
@@ -138,7 +138,7 @@ self_optimized = ([average_self_run_times_small,average_self_run_times_medium,av
 user_optimized = ([average_user_run_times_small, average_user_run_times_medium, average_user_run_times_large])
 
 x = ['SmallDB', 'MediumDB', 'LargeDB']
-###xpos = np.arange(len(x))
+
 barwidth = 0.4
 plt.figure(figsize=(10,7))
 plt.bar(x, uninformed, color='royalblue', width=barwidth, label='Uninformed')
