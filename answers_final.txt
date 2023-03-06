@@ -1,0 +1,59 @@
+-- Question 1
+SELECT COUNT(*) as ANSWER
+FROM (SELECT nos.order_id
+      FROM (SELECT o.order_id
+            FROM Orders o,
+                 Customers c
+            WHERE c.customer_id = o.customer_id
+              AND (c.customer_postal_code =
+                   (SELECT c.customer_postal_code FROM Customers c ORDER BY random() LIMIT 1))) nos
+      WHERE (SELECT COUNT(*) FROM Order_items i WHERE i.order_id = nos.order_id) > 1);
+
+-- Question 2
+Create VIEW OrderSize AS
+Select DISTINCT order_id as oid, COUNT(order_id) as size
+FROM Order_items
+GROUP BY order_id;
+
+SELECT COUNT(*) as ANSWER
+FROM (SELECT nos.order_id
+      FROM (SELECT o.order_id
+            FROM Orders o,
+                 Customers c
+            WHERE c.customer_id = o.customer_id
+              AND (c.customer_postal_code =
+                   (SELECT c.customer_postal_code FROM Customers c ORDER BY random() LIMIT 1))) nos
+      WHERE (SELECT COUNT(*) FROM Order_items i WHERE i.order_id = nos.order_id) > (SELECT AVG(size) FROM OrderSize));
+
+-- Question 3
+SELECT COUNT(*) as ANSWER
+FROM (SELECT nos.order_id
+      FROM (SELECT o.order_id
+            FROM Orders o,
+                 Customers c
+            WHERE c.customer_id = o.customer_id
+              AND (c.customer_postal_code =
+                   (SELECT c.customer_postal_code FROM Customers c ORDER BY random() LIMIT 1))) nos
+      WHERE (SELECT COUNT(*) FROM Order_items i WHERE i.order_id = nos.order_id) > (SELECT AVG(size)
+                                                                                    FROM (Select COUNT(order_id) as size
+                                                                                          FROM Order_items
+                                                                                          GROUP BY order_id)));
+
+-- Question 4
+SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
+      FROM (SELECT i.seller_id
+            FROM (SELECT order_id
+                  FROM Orders
+                  WHERE customer_id = (SELECT cust
+                                       FROM (SELECT c.customer_id as cust
+                                             FROM Orders o,
+                                                  Customers c
+                                             WHERE o.customer_id = c.customer_id
+                                             GROUP by c.customer_id
+                                             HAVING COUNT(order_id) > 1)
+                                       ORDER BY random()
+                                       LIMIT 1)) nest_2,
+                 Order_items i
+            WHERE nest_2.order_id = i.order_id) nest_3,
+           Sellers s
+      WHERE nest_3.seller_id = s.seller_id;
