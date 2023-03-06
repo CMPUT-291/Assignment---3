@@ -22,20 +22,24 @@ def create_uninf_db(cur, conn):
                         INSERT INTO Order_items_new SELECT * FROM Order_items; ''')
     conn.commit()
     exec_times = []
-    for i in range(50):
+    for i in range(1):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
                         FROM (SELECT i.seller_id
                                 FROM (SELECT order_id
-                                        FROM Orders_new
-                                        WHERE customer_id = (SELECT o.customer_id
-                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
-                                                                        FROM Order_items_new
-                                                                        GROUP BY order_id
-                                                                        HAVING size > 1) nest, Orders_new o
-                                                                WHERE o.order_id = nest.oid
-                                                                ORDER BY random() LIMIT 1))nest_2, Order_items_new i
-                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers_new s
+                                    FROM Orders_new
+                                    WHERE customer_id = (SELECT cust
+                                                        FROM (SELECT c.customer_id as cust
+                                                                FROM Orders_new o,
+                                                                    Customers_new c
+                                                                WHERE o.customer_id = c.customer_id
+                                                                GROUP by c.customer_id
+                                                                HAVING COUNT(order_id) > 1)
+                                                        ORDER BY random()
+                                                        LIMIT 1)) nest_2,
+                                    Order_items_new i
+                                WHERE nest_2.order_id = i.order_id) nest_3,
+                            Sellers_new s
                         WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)
@@ -50,18 +54,22 @@ def create_self_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
                         FROM (SELECT i.seller_id
                                 FROM (SELECT order_id
-                                        FROM Orders
-                                        WHERE customer_id = (SELECT o.customer_id
-                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
-                                                                        FROM Order_items
-                                                                        GROUP BY order_id
-                                                                        HAVING size > 1) nest, Orders o
-                                                                WHERE o.order_id = nest.oid
-                                                                ORDER BY random() LIMIT 1))nest_2, Order_items i
-                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers s
+                                    FROM Orders
+                                    WHERE customer_id = (SELECT cust
+                                                        FROM (SELECT c.customer_id as cust
+                                                                FROM Orders o,
+                                                                    Customers c
+                                                                WHERE o.customer_id = c.customer_id
+                                                                GROUP by c.customer_id
+                                                                HAVING COUNT(order_id) > 1)
+                                                        ORDER BY random()
+                                                        LIMIT 1)) nest_2,
+                                    Order_items i
+                                WHERE nest_2.order_id = i.order_id) nest_3,
+                            Sellers s
                         WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)
@@ -85,18 +93,22 @@ def create_user_db(cur, conn):
     exec_times = []
     for i in range(50):
         start = time.time()
-        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code)
+        cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
                         FROM (SELECT i.seller_id
                                 FROM (SELECT order_id
-                                        FROM Orders
-                                        WHERE customer_id = (SELECT o.customer_id
-                                                                FROM (Select DISTINCT order_id as oid, COUNT(order_id) as size
-                                                                        FROM Order_items
-                                                                        GROUP BY order_id
-                                                                        HAVING size > 1) nest, Orders o
-                                                                WHERE o.order_id = nest.oid
-                                                                ORDER BY random() LIMIT 1))nest_2, Order_items i
-                                WHERE nest_2.order_id = i.order_id) nest_3, Sellers s
+                                    FROM Orders
+                                    WHERE customer_id = (SELECT cust
+                                                        FROM (SELECT c.customer_id as cust
+                                                                FROM Orders o,
+                                                                    Customers c
+                                                                WHERE o.customer_id = c.customer_id
+                                                                GROUP by c.customer_id
+                                                                HAVING COUNT(order_id) > 1)
+                                                        ORDER BY random()
+                                                        LIMIT 1)) nest_2,
+                                    Order_items i
+                                WHERE nest_2.order_id = i.order_id) nest_3,
+                            Sellers s
                         WHERE nest_3.seller_id = s.seller_id;""")
         end = time.time()
         exec_times.append((end - start) * 1000)

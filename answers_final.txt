@@ -40,8 +40,7 @@ FROM (SELECT nos.order_id
                                                                                           GROUP BY order_id)));
 
 -- Question 4
-SELECT COUNT(*)
-FROM (SELECT DISTINCT s.seller_postal_code
+SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
       FROM (SELECT i.seller_id
             FROM (SELECT order_id
                   FROM Orders
@@ -57,4 +56,4 @@ FROM (SELECT DISTINCT s.seller_postal_code
                  Order_items i
             WHERE nest_2.order_id = i.order_id) nest_3,
            Sellers s
-      WHERE nest_3.seller_id = s.seller_id);
+      WHERE nest_3.seller_id = s.seller_id;
