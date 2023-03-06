@@ -58,14 +58,9 @@ def create_user_db(cur, conn):
     cur.execute("PRAGMA foreign_keys = ON")
     cur.execute("PRAGMA automatic_index = FALSE")
     cur.executescript(""" DROP INDEX IF EXISTS idx_order_id;
-                            DROP INDEX IF EXISTS idx_customer_id;
-                            DROP INDEX IF EXISTS idx_seller_id;
-                            DROP INDEX IF EXISTS idx_order_id_items;
-    """)
+                            DROP INDEX IF EXISTS idx_customer_id;""")
     cur.executescript("""CREATE INDEX idx_order_id ON Orders(order_id);
-                            CREATE INDEX idx_customer_id ON Customers(customer_id);
-                            CREATE INDEX idx_seller_id ON Sellers(seller_id);
-                            CREATE INDEX idx_order_id_items ON Order_items(order_id);""")
+                            CREATE INDEX idx_customer_id ON Customers(customer_id);""")
     conn.commit()
 
     exec_times = []
