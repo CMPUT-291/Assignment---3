@@ -1,3 +1,4 @@
+# importing all the necessary modules needed 
 import sqlite3 
 import time
 import matplotlib.pyplot as plt
@@ -58,9 +59,11 @@ def create_user_db(cur, conn):
     cur.execute("PRAGMA foreign_keys = ON")
     cur.execute("PRAGMA automatic_index = FALSE")
     cur.executescript(""" DROP INDEX IF EXISTS idx_order_id;
-                            DROP INDEX IF EXISTS idx_customer_id;""")
+                            DROP INDEX IF EXISTS idx_customer_id;
+                            DROP INDEX IF EXISTS idx_cust_postal_code;""")
     cur.executescript("""CREATE INDEX idx_order_id ON Orders(order_id);
-                            CREATE INDEX idx_customer_id ON Customers(customer_id);""")
+                            CREATE INDEX idx_customer_id ON Customers(customer_id);
+                            CREATE INDEX idx_cust_postal_code ON Customers(customer_postal_code);""")
     conn.commit()
 
     exec_times = []
@@ -129,6 +132,7 @@ run_times = create_user_db(cur,conn)
 average_user_run_times_large = average(run_times)
 print(average_user_run_times_large)
 
+# Taking in all the necessary data caculated from above and making a stacked box plot of the run times
 uninformed = np.array([average_undef_run_times_small, average_undef_run_times_medium, average_undef_run_times_large])
 self_optimized = ([average_self_run_times_small,average_self_run_times_medium,average_self_run_times_large])
 user_optimized = ([average_user_run_times_small, average_user_run_times_medium, average_user_run_times_large])
