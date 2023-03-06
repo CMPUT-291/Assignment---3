@@ -1,3 +1,4 @@
+# importing all the necessary modules needed 
 import sqlite3 
 import time
 import matplotlib.pyplot as plt
@@ -22,7 +23,7 @@ def create_uninf_db(cur, conn):
                         INSERT INTO Order_items_new SELECT * FROM Order_items; ''')
     conn.commit()
     exec_times = []
-    for i in range(1):
+    for i in range(50):
         start = time.time()
         cur.execute("""SELECT COUNT(DISTINCT s.seller_postal_code) as NO_unique_postal
                         FROM (SELECT i.seller_id
@@ -83,11 +84,14 @@ def create_user_db(cur, conn):
                             DROP INDEX IF EXISTS idx_customer_id;
                             DROP INDEX IF EXISTS idx_seller_id;
                             DROP INDEX IF EXISTS idx_order_id_items;
-    """)
+                            DROP INDEX IF EXISTS idx_seller_postal;
+                            DROP INDEX IF EXISTS idx_orders_customer_id;""")
     cur.executescript("""CREATE INDEX idx_order_id ON Orders(order_id);
                             CREATE INDEX idx_customer_id ON Customers(customer_id);
                             CREATE INDEX idx_seller_id ON Sellers(seller_id);
-                            CREATE INDEX idx_order_id_items ON Order_items(order_id);""")
+                            CREATE INDEX idx_order_id_items ON Order_items(order_id);
+                            CREATE INDEX idx_seller_postal ON Sellers(seller_postal_code);
+                            CREATE INDEX idx_orders_customer_id ON Orders(customer_id);""")
     conn.commit()
 
     exec_times = []
@@ -167,6 +171,7 @@ run_times = create_user_db(cur,conn)
 average_user_run_times_large = average(run_times)
 print(average_user_run_times_large)
 
+# Taking in all the necessary data caculated from above and making a stacked box plot of the run times
 uninformed = np.array([average_undef_run_times_small, average_undef_run_times_medium, average_undef_run_times_large])
 self_optimized = ([average_self_run_times_small,average_self_run_times_medium,average_self_run_times_large])
 user_optimized = ([average_user_run_times_small, average_user_run_times_medium, average_user_run_times_large])
